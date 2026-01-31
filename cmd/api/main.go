@@ -15,9 +15,12 @@ func main() {
 	mux := http.NewServeMux()
 	httpserver.RegisterRoutes(mux)
 
+	// On ajoute l’audit comme middleware global
+	handler := httpserver.Audit(mux)
+
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           mux,
+		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
