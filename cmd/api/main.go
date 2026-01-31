@@ -7,15 +7,25 @@ import (
 	"time"
 
 	"github.com/berthiay/api-locale-8088/internal/httpserver"
+	"github.com/berthiay/api-locale-8088/internal/storage"
 )
 
 func main() {
 	addr := env("BEZA_ADDR", ":8088")
 
+	// Base SQLite locale + schema
+	db, err := storage.InitDB("bezalel.db", "001_init.sql")
+	if err != nil {
+		log.Fatalf("db init error: %v", err)
+	}
+	defer db.Close()
+
+	httpserver.SetDB(db)
+
 	mux := http.NewServeMux()
 	httpserver.RegisterRoutes(mux)
 
-	// On ajoute l’audit comme middleware global
+	// audit global
 	handler := httpserver.Audit(mux)
 
 	srv := &http.Server{

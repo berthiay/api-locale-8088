@@ -3,6 +3,7 @@ package httpserver
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -10,8 +11,21 @@ import (
 func Audit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+
 		next.ServeHTTP(w, r)
-		role, _ := r.Context().Value(roleKey).(string)
+
+		role := guessRoleFromAuthHeader(r.Header.Get("Authorization"))
 		log.Printf("audit: method=%s path=%s role=%s duration=%s", r.Method, r.URL.Path, role, time.Since(start))
 	})
+}
+
+func guessRoleFromAuthHeader(authHeader string) string {
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return ""
+	}
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	if role, ok := tokenRoles[token]; ok {
+		return role
+	}
+	return ""
 }
