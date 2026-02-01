@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: Bezalel OS - Nehemiah API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8088
+paths:
+  /v1/health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required: [status]
+
+  /v1/reports:
+    get:
+      summary: List reports (viewer/admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemList"
+        "401":
+          description: Unauthorized
+    post:
+      summary: Create report (admin recommended)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRequest"
+      responses:
+        "200":
+          description: Created report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+
+  /v1/decision-proposals:
+    get:
+      summary: List decision proposals (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of decision proposals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    post:
+      summary: Create decision proposal (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRequest"
+      responses:
+        "200":
+          description: Created decision proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /v1/validation-requests:
+    get:
+      summary: List validation requests (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of validation requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    post:
+      summary: Create validation request (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRequest"
+      responses:
+        "200":
+          description: Created validation request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /openapi.yaml:
+    get:
+      summary: Download OpenAPI spec
+      responses:
+        "200":
+          description: OpenAPI YAML
+          content:
+            text/yaml:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CreateRequest:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        created_at:
+          type: string
+        content:
+          type: string
+      required: [id, created_at, content]
+    ItemList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Item"

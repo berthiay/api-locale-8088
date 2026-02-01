@@ -1,2 +1,5 @@
-# SQLite local database
+# local secrets
+.env
+
+# local sqlite database
 bezalel.db
